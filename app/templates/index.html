@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Sentiment Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-left: 4px solid #007BFF;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Sentiment Predictor</h1>
+        <form id="predictForm">
+            <label for="game_name">Game Name:</label>
+            <input type="text" id="game_name" name="game_name" placeholder="Enter game name" required>
+
+            <label for="tweets">Tweet:</label>
+            <textarea id="tweets" name="tweets" rows="3" placeholder="Enter a tweet about the game" required></textarea>
+
+            <button type="submit">Predict Sentiment</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const gameName = document.getElementById('game_name').value;
+            const tweet = document.getElementById('tweets').value;
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_name: gameName, tweets: tweet })
+                });
+
+                const data = await response.json();
+                const resultDiv = document.getElementById('result');
+                if (data.error) {
+                    resultDiv.innerHTML = `<strong>Error:</strong> ${data.error}`;
+                    resultDiv.style.color = "red";
+                } else {
+                    const sentiment = data.results[0].sentiment; // Assumes one tweet is being processed
+                    resultDiv.innerHTML = `<strong>Sentiment:</strong> ${sentiment}`;
+                    resultDiv.style.color = "green";
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = "Error: Unable to get predictions.";
+                document.getElementById('result').style.color = "red";
+            }
+        });
+    </script>
+</body>
+</html>
+
